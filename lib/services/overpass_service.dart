@@ -6,21 +6,24 @@ import '../models/cafe.dart';
 
 class OverpassService {
   static const String _baseUrl =
-      'https://overpass-api.de/api/interpreter';
-
+    'https://maps.mail.ru/osm/tools/overpass/api/interpreter';
   Future<List<Cafe>> fetchCafes({
     required double latitude,
     required double longitude,
     int radius = 5000,
   }) async {
-    const timeout = Duration(seconds: 40);
+    const timeout = Duration(seconds: 60);
 
     final query = '''
 [out:json][timeout:30];
 (
-  node["amenity"~"cafe|coffee_shop"](around:$radius,$latitude,$longitude);
-  way["amenity"~"cafe|coffee_shop"](around:$radius,$latitude,$longitude);
-  relation["amenity"~"cafe|coffee_shop"](around:$radius,$latitude,$longitude);
+  node["amenity"~"cafe|coffee_shop|coworking_space"](around:$radius,$latitude,$longitude);
+  way["amenity"~"cafe|coffee_shop|coworking_space"](around:$radius,$latitude,$longitude);
+  relation["amenity"~"cafe|coffee_shop|coworking_space"](around:$radius,$latitude,$longitude);
+
+  node["shop"="bakery"](around:$radius,$latitude,$longitude);
+  way["shop"="bakery"](around:$radius,$latitude,$longitude);
+  relation["shop"="bakery"](around:$radius,$latitude,$longitude);
 );
 out center tags;
 ''';
@@ -30,6 +33,9 @@ out center tags;
           Uri.parse(_baseUrl),
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'User-Agent':
+               'CafeHunt/1.0 (+https://github.com/gena-collab/cafehunt)',
           },
           body: {'data': query},
         )
