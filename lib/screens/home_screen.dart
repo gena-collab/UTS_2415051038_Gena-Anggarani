@@ -1,7 +1,7 @@
 
-// Nama  : Gena Anggarani
-// NIM   : 2415051038
-// Proyek: CafeHunt
+ // Nama  : Gena Anggarani
+ // NIM   : 2415051038
+ // Proyek: CafeHunt
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -158,328 +158,380 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFFAF8F5),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header aplikasi.
-              Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEFE4D8),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: const Icon(
-                      Icons.local_cafe_rounded,
-                      color: Color(0xFF6F4E37),
-                      size: 27,
-                    ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Menentukan jumlah kolom berdasarkan lebar layar.
+            final double screenWidth = constraints.maxWidth;
+
+            final int crossAxisCount;
+
+            if (screenWidth < 600) {
+              crossAxisCount = 1;
+            } else if (screenWidth < 900) {
+              crossAxisCount = 2;
+            } else {
+              crossAxisCount = 3;
+            }
+
+            final double horizontalPadding =
+                screenWidth < 600 ? 20 : 28;
+
+            return SingleChildScrollView(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 1100,
                   ),
-                  const SizedBox(width: 12),
-                  const Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(horizontalPadding),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'CafeHunt',
+                        // Header aplikasi.
+                        Row(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEFE4D8),
+                                borderRadius:
+                                    BorderRadius.circular(15),
+                              ),
+                              child: const Icon(
+                                Icons.local_cafe_rounded,
+                                color: Color(0xFF6F4E37),
+                                size: 27,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'CafeHunt',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF302820),
+                                    ),
+                                  ),
+                                  Text(
+                                    'Temukan tempat favoritmu',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'Notifikasi',
+                              onPressed: () {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Fitur notifikasi segera hadir.',
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.notifications_none_rounded,
+                                color: Color(0xFF6F4E37),
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'Profile',
+                              onPressed: openProfile,
+                              icon: const Icon(
+                                Icons.account_circle_outlined,
+                                color: Color(0xFF6F4E37),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 30),
+
+                        const Text(
+                          'Halo, Cafe Hunters!',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 23,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF302820),
                           ),
                         ),
-                        Text(
-                          'Temukan tempat favoritmu',
+
+                        const SizedBox(height: 6),
+
+                        const Text(
+                          'Mau nongkrong di mana hari ini?',
                           style: TextStyle(
-                            fontSize: 12,
                             color: Colors.grey,
+                            fontSize: 14,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Notifikasi',
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Fitur notifikasi segera hadir.',
+
+                        const SizedBox(height: 22),
+
+                        // Pencarian cafe.
+                        TextField(
+                          controller: searchController,
+                          onChanged: (value) {
+                            setState(() {
+                              searchQuery = value;
+                            });
+                          },
+                          decoration: InputDecoration(
+                            hintText:
+                                'Cari nama atau lokasi cafe...',
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                searchController.clear();
+                                setState(() {
+                                  searchQuery = '';
+                                });
+                              },
+                              icon: const Icon(Icons.close),
+                            ),
                           ),
                         ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.notifications_none_rounded,
-                      color: Color(0xFF6F4E37),
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Profile',
-                    onPressed: openProfile,
-                    icon: const Icon(
-                      Icons.account_circle_outlined,
-                      color: Color(0xFF6F4E37),
-                    ),
-                  ),
-                ],
-              ),
 
-              const SizedBox(height: 30),
+                        const SizedBox(height: 28),
 
-              const Text(
-                'Halo, Cafe Hunters!',
-                style: TextStyle(
-                  fontSize: 23,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF302820),
-                ),
-              ),
+                        const Text(
+                          'Kategori',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF302820),
+                          ),
+                        ),
 
-              const SizedBox(height: 6),
+                        const SizedBox(height: 14),
 
-              const Text(
-                'Mau nongkrong di mana hari ini?',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                ),
-              ),
+                        // Filter kategori.
+                        SizedBox(
+                          height: 42,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: categories.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(width: 10),
+                            itemBuilder: (context, index) {
+                              final category = categories[index];
+                              final isSelected =
+                                  selectedCategory == category;
 
-              const SizedBox(height: 22),
+                              return CategoryChip(
+                                label: category,
+                                isSelected: isSelected,
+                                onTap: () {
+                                  setState(() {
+                                    selectedCategory = category;
+                                  });
+                                },
+                              );
+                            },
+                          ),
+                        ),
 
-              // Pencarian cafe.
-              TextField(
-                controller: searchController,
-                onChanged: (value) {
-                  setState(() {
-                    searchQuery = value;
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: 'Cari nama atau lokasi cafe...',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      searchController.clear();
-                      setState(() {
-                        searchQuery = '';
-                      });
-                    },
-                    icon: const Icon(Icons.close),
-                  ),
-                ),
-              ),
+                        const SizedBox(height: 28),
 
-              const SizedBox(height: 28),
-
-              const Text(
-                'Kategori',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF302820),
-                ),
-              ),
-
-              const SizedBox(height: 14),
-
-              // Filter kategori menggunakan reusable widget.
-              SizedBox(
-                height: 42,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categories.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(width: 10),
-                  itemBuilder: (context, index) {
-                    final category = categories[index];
-                    final isSelected =
-                        selectedCategory == category;
-
-                    return CategoryChip(
-                      label: category,
-                      isSelected: isSelected,
-                      onTap: () {
-                        setState(() {
-                          selectedCategory = category;
-                        });
-                      },
-                    );
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 28),
-
-              // Banner Wishlist.
-              Material(
-                color: const Color(0xFF6F4E37),
-                borderRadius: BorderRadius.circular(20),
-                child: InkWell(
-                  onTap: openWishlist,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    child: const Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Simpan cafe favoritmu!',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 7),
-                              Text(
-                                'Buat daftar tempat yang ingin kamu kunjungi.',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              SizedBox(height: 12),
-                              Row(
+                        // Banner Wishlist.
+                        Material(
+                          color: const Color(0xFF6F4E37),
+                          borderRadius: BorderRadius.circular(20),
+                          child: InkWell(
+                            onTap: openWishlist,
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(20),
+                              child: const Row(
                                 children: [
-                                  Text(
-                                    'Lihat Wishlist',
-                                    style: TextStyle(
-                                      color: Color(0xFFE8B86D),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Simpan cafe favoritmu!',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 17,
+                                            fontWeight:
+                                                FontWeight.bold,
+                                          ),
+                                        ),
+                                        SizedBox(height: 7),
+                                        Text(
+                                          'Buat daftar tempat yang ingin kamu kunjungi.',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        SizedBox(height: 12),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Lihat Wishlist',
+                                              style: TextStyle(
+                                                color:
+                                                    Color(0xFFE8B86D),
+                                                fontSize: 12,
+                                                fontWeight:
+                                                    FontWeight.bold,
+                                              ),
+                                            ),
+                                            SizedBox(width: 5),
+                                            Icon(
+                                              Icons.arrow_forward_rounded,
+                                              color: Color(0xFFE8B86D),
+                                              size: 16,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  SizedBox(width: 5),
+                                  SizedBox(width: 12),
                                   Icon(
-                                    Icons.arrow_forward_rounded,
+                                    Icons.favorite_rounded,
                                     color: Color(0xFFE8B86D),
-                                    size: 16,
+                                    size: 48,
                                   ),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
-                        SizedBox(width: 12),
-                        Icon(
-                          Icons.favorite_rounded,
-                          color: Color(0xFFE8B86D),
-                          size: 48,
+
+                        const SizedBox(height: 28),
+
+                        // Judul daftar cafe dan tombol muat ulang.
+                        Row(
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Jelajahi Cafe',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF302820),
+                              ),
+                            ),
+                            TextButton.icon(
+                              onPressed: () {
+                                context
+                                    .read<CafeProvider>()
+                                    .loadCafes(
+                                      latitude: latitude,
+                                      longitude: longitude,
+                                    );
+                              },
+                              icon: const Icon(
+                                Icons.refresh,
+                                size: 16,
+                              ),
+                              label: const Text('Muat ulang'),
+                            ),
+                          ],
                         ),
+
+                        const SizedBox(height: 12),
+
+                        // Data cafe dari API melalui CafeProvider.
+                        Consumer<CafeProvider>(
+                          builder: (context, provider, child) {
+                            if (provider.isLoading &&
+                                provider.cafes.isEmpty) {
+                              return const Padding(
+                                padding: EdgeInsets.all(30),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: Color(0xFF6F4E37),
+                                  ),
+                                ),
+                              );
+                            }
+
+                            // Tampilan ketika API mengalami kesalahan.
+                            if (provider.errorMessage != null &&
+                                provider.cafes.isEmpty) {
+                              return EmptyState(
+                                icon: Icons.wifi_off_rounded,
+                                title: 'Gagal memuat data cafe',
+                                message:
+                                    'Periksa koneksi internet lalu coba lagi.',
+                                actionLabel: 'Coba Lagi',
+                                onAction: () {
+                                  provider.loadCafes(
+                                    latitude: latitude,
+                                    longitude: longitude,
+                                  );
+                                },
+                              );
+                            }
+
+                            final filteredCafes =
+                                filterCafes(provider.cafes);
+
+                            // Tampilan ketika cafe tidak ditemukan.
+                            if (filteredCafes.isEmpty) {
+                              return const EmptyState(
+                                icon: Icons.coffee_outlined,
+                                title: 'Cafe belum ditemukan',
+                                message:
+                                    'Coba kata kunci atau kategori lainnya.',
+                              );
+                            }
+
+                            // Grid menyesuaikan lebar layar.
+                            return GridView.builder(
+                              shrinkWrap: true,
+                              physics:
+                                  const NeverScrollableScrollPhysics(),
+                              itemCount: filteredCafes.length,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: crossAxisCount,
+                                crossAxisSpacing: 14,
+                                mainAxisSpacing: 0,
+                                mainAxisExtent: 120,
+                              ),
+                              itemBuilder: (context, index) {
+                                final cafe = filteredCafes[index];
+
+                                return CafeCard(
+                                  cafe: cafe,
+                                  categoryLabel:
+                                      categoryLabel(cafe.category),
+                                  categoryIcon:
+                                      categoryIcon(cafe.category),
+                                  onTap: () => openCafeDetail(cafe),
+                                );
+                              },
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
                 ),
               ),
-
-              const SizedBox(height: 28),
-
-              // Daftar cafe.
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Jelajahi Cafe',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF302820),
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: () {
-                      context.read<CafeProvider>().loadCafes(
-                            latitude: latitude,
-                            longitude: longitude,
-                          );
-                    },
-                    icon: const Icon(
-                      Icons.refresh,
-                      size: 16,
-                    ),
-                    label: const Text('Muat ulang'),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              // Menampilkan data dari CafeProvider.
-              Consumer<CafeProvider>(
-                builder: (context, provider, child) {
-                  if (provider.isLoading &&
-                      provider.cafes.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.all(30),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF6F4E37),
-                        ),
-                      ),
-                    );
-                  }
-
-                  // Tampilan ketika API mengalami kesalahan.
-                  if (provider.errorMessage != null &&
-                      provider.cafes.isEmpty) {
-                    return EmptyState(
-                      icon: Icons.wifi_off_rounded,
-                      title: 'Gagal memuat data cafe',
-                      message:
-                          'Periksa koneksi internet lalu coba lagi.',
-                      actionLabel: 'Coba Lagi',
-                      onAction: () {
-                        provider.loadCafes(
-                          latitude: latitude,
-                          longitude: longitude,
-                        );
-                      },
-                    );
-                  }
-
-                  final filteredCafes =
-                      filterCafes(provider.cafes);
-
-                  // Tampilan ketika cafe tidak ditemukan.
-                  if (filteredCafes.isEmpty) {
-                    return const EmptyState(
-                      icon: Icons.coffee_outlined,
-                      title: 'Cafe belum ditemukan',
-                      message:
-                          'Coba kata kunci atau kategori lainnya.',
-                    );
-                  }
-
-                  // Menampilkan daftar cafe dengan CafeCard.
-                  return Column(
-                    children: filteredCafes.map((cafe) {
-                      return CafeCard(
-                        cafe: cafe,
-                        categoryLabel:
-                            categoryLabel(cafe.category),
-                        categoryIcon:
-                            categoryIcon(cafe.category),
-                        onTap: () => openCafeDetail(cafe),
-                      );
-                    }).toList(),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 20),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
