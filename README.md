@@ -12,20 +12,20 @@ Aplikasi mobile berbasis Flutter untuk membantu pengguna menemukan informasi caf
 
 ## Deskripsi Aplikasi
 
-CafeHunt merupakan aplikasi pencarian cafe yang menampilkan informasi tempat berdasarkan data OpenStreetMap melalui Overpass API. Pengguna dapat melihat daftar cafe, membuka detail cafe, dan menyimpan tempat yang ingin dikunjungi ke dalam Wishlist.
+CafeHunt merupakan aplikasi pencarian cafe yang memanfaatkan data OpenStreetMap melalui Overpass API. Pengguna dapat melihat daftar cafe, membuka detail informasi cafe, serta menyimpan tempat yang ingin dikunjungi ke dalam Wishlist.
 
-Data Wishlist disimpan menggunakan Supabase sehingga pengguna dapat melakukan operasi tambah, lihat, ubah, dan hapus data.
+Data Wishlist dikelola menggunakan Supabase sehingga pengguna dapat melakukan operasi tambah, lihat, ubah, dan hapus data.
 
 ## Fitur Aplikasi
 
-1. **Home** – Menampilkan daftar cafe dari REST API.
-2. **Cafe Detail** – Menampilkan informasi detail cafe yang dipilih.
-3. **Profile** – Menampilkan halaman profil aplikasi.
-4. **Wishlist** – Menampilkan daftar cafe yang disimpan.
-5. **Wishlist Form** – Menambahkan dan mengubah data Wishlist.
-6. **Wishlist Detail** – Menampilkan informasi detail cafe yang tersimpan.
-7. **Responsive Layout** – Menyesuaikan tampilan berdasarkan ukuran layar.
-8. **Loading dan Error State** – Menampilkan status ketika data sedang dimuat atau terjadi kesalahan.
+1. **Home:** Menampilkan daftar cafe berdasarkan data REST API.
+2. **Cafe Detail:** Menampilkan informasi detail cafe yang dipilih.
+3. **Profile:** Menampilkan halaman profil aplikasi.
+4. **Wishlist:** Menampilkan daftar cafe yang telah disimpan.
+5. **Wishlist Form:** Menambahkan dan mengubah data Wishlist.
+6. **Wishlist Detail:** Menampilkan informasi detail cafe yang tersimpan.
+7. **Responsive Layout:** Menyesuaikan tata letak berdasarkan ukuran layar.
+8. **Loading dan Error State:** Menampilkan status pemuatan data dan informasi ketika terjadi kesalahan.
 
 ## Teknologi yang Digunakan
 
@@ -33,6 +33,7 @@ Data Wishlist disimpan menggunakan Supabase sehingga pengguna dapat melakukan op
 - Dart
 - Provider dan ChangeNotifier
 - HTTP
+- OpenStreetMap
 - Overpass API
 - Supabase
 - PostgreSQL
@@ -41,34 +42,36 @@ Data Wishlist disimpan menggunakan Supabase sehingga pengguna dapat melakukan op
 
 CafeHunt menggunakan Overpass API dari OpenStreetMap untuk mengambil data lokasi cafe.
 
-- Metode: GET
-- Endpoint utama: `https://maps.mail.ru/osm/tools/overpass/api/interpreter`
-- Data response: JSON
+- **Metode:** GET
+- **Endpoint utama:** `https://maps.mail.ru/osm/tools/overpass/api/interpreter`
+- **Format response:** JSON
 
-Aplikasi mengolah response JSON menjadi objek model Cafe sebelum ditampilkan pada halaman Home.
+Data JSON diproses menjadi objek model Cafe sebelum ditampilkan pada halaman aplikasi.
 
 ## Backend Database
 
-Menggunakan Supabase dengan tabel `wishlists`.
+CafeHunt menggunakan Supabase sebagai backend database dengan tabel `wishlists`.
 
 Data yang disimpan meliputi:
-- id
-- cafe_id
-- cafe_name
-- address
-- latitude
-- longitude
-- created_at
 
-Operasi database:
-- Create: Menambahkan Wishlist.
-- Read: Mengambil dan menampilkan Wishlist.
-- Update: Mengubah data Wishlist.
-- Delete: Menghapus Wishlist.
+- `id`
+- `cafe_id`
+- `cafe_name`
+- `address`
+- `latitude`
+- `longitude`
+- `created_at`
+
+Operasi database yang diterapkan:
+
+- **Create:** Menambahkan cafe ke Wishlist.
+- **Read:** Mengambil dan menampilkan data Wishlist.
+- **Update:** Mengubah data Wishlist.
+- **Delete:** Menghapus data Wishlist.
 
 ## Arsitektur Aplikasi
 
-Aplikasi menggunakan pemisahan tanggung jawab sebagai berikut:
+Aplikasi menerapkan pemisahan tanggung jawab dengan susunan:
 
 ```text
 UI (Screens & Widgets)
@@ -86,6 +89,13 @@ Service
 REST API / Supabase
 ```
 
+Penjelasan:
+
+- **UI:** Menampilkan halaman dan komponen aplikasi.
+- **Provider:** Mengelola state dan memperbarui tampilan.
+- **Repository:** Menjadi penghubung antara Provider dan Service.
+- **Service:** Menangani komunikasi dengan REST API dan Supabase.
+
 ## Struktur Folder
 
 ```text
@@ -101,34 +111,58 @@ lib/
 └── main.dart
 ```
 
+## Dokumentasi Tampilan
+
+Screenshot aplikasi dilampirkan pada folder `screenshots/` sebagai bukti implementasi fitur dan tampilan CafeHunt.
+
 ## Cara Menjalankan Aplikasi
 
-1. Pastikan Flutter dan Dart sudah terpasang.
-2. Clone repository:
+### Persyaratan
+
+- Flutter SDK
+- Dart SDK
+- Android Studio atau perangkat Android
+- Akun dan konfigurasi proyek Supabase
+
+### Langkah Menjalankan
+
+1. Clone repository:
 
 ```bash
 git clone https://github.com/gena-collab/cafehunt.git
 ```
 
-3. Masuk ke folder proyek:
+2. Masuk ke folder proyek:
 
 ```bash
 cd cafehunt
 ```
 
-4. Instal dependencies:
+3. Instal dependencies:
 
 ```bash
 flutter pub get
 ```
 
-5. Jalankan aplikasi dengan konfigurasi Supabase:
+4. Jalankan aplikasi dengan konfigurasi Supabase:
 
 ```bash
 flutter run --dart-define=SUPABASE_URL=https://ltnuxvmknsplybovxcrt.supabase.co --dart-define=SUPABASE_ANON_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
 ```
 
-Ganti `YOUR_SUPABASE_PUBLISHABLE_KEY` dengan publishable key milik proyek Supabase.
+Ganti `YOUR_SUPABASE_PUBLISHABLE_KEY` dengan publishable key dari proyek Supabase.
+
+### Membuat APK Release
+
+```bash
+flutter build apk --release --dart-define=SUPABASE_URL=https://ltnuxvmknsplybovxcrt.supabase.co --dart-define=SUPABASE_ANON_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
+```
+
+File APK tersedia pada:
+
+```text
+build/app/outputs/flutter-apk/app-release.apk
+```
 
 ## Repository
 
