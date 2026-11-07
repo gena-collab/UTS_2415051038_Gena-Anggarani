@@ -1,4 +1,4 @@
-
+﻿
 # CafeHunt
 
 Aplikasi mobile berbasis Flutter untuk membantu pengguna menemukan informasi cafe dan menyimpan cafe yang ingin dikunjungi ke dalam Wishlist.
@@ -100,20 +100,20 @@ Penjelasan:
 
 ```text
 lib/
-├── config/
-├── models/
-├── providers/
-├── repositories/
-├── screens/
-├── services/
-├── utils/
-├── widgets/
-└── main.dart
+â”œâ”€â”€ config/
+â”œâ”€â”€ models/
+â”œâ”€â”€ providers/
+â”œâ”€â”€ repositories/
+â”œâ”€â”€ screens/
+â”œâ”€â”€ services/
+â”œâ”€â”€ utils/
+â”œâ”€â”€ widgets/
+â””â”€â”€ main.dart
 ```
 
 ## Dokumentasi Tampilan
 
-Screenshot aplikasi dilampirkan pada folder `screenshots/` sebagai bukti implementasi fitur dan tampilan CafeHunt.
+Screenshot aplikasi dilampirkan pada folder `screenshot/` sebagai bukti implementasi fitur dan tampilan CafeHunt.
 
 ## Cara Menjalankan Aplikasi
 
@@ -167,3 +167,4 @@ build/app/outputs/flutter-apk/app-release.apk
 ## Repository
 
 https://github.com/gena-collab/cafehunt
+
