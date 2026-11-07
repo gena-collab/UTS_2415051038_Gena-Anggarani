@@ -8,6 +8,10 @@ import 'package:provider/provider.dart';
 
 import '../models/cafe.dart';
 import '../providers/cafe_provider.dart';
+import '../widgets/category_chip.dart';
+import '../widgets/cafe_card.dart';
+import '../widgets/empty_state.dart';
+
 import 'cafe_detail_screen.dart';
 import 'profile_screen.dart';
 import 'wishlist_screen.dart';
@@ -57,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  // Filter cafe berdasarkan pencarian dan kategori.
   List<Cafe> filterCafes(List<Cafe> cafes) {
     return cafes.where((cafe) {
       final query = searchQuery.toLowerCase();
@@ -90,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }).toList();
   }
 
+  // Mengubah nama kategori agar mudah dibaca.
   String categoryLabel(String category) {
     switch (category.toLowerCase()) {
       case 'coffee_shop':
@@ -105,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Menentukan ikon berdasarkan kategori cafe.
   IconData categoryIcon(String category) {
     switch (category.toLowerCase()) {
       case 'bakery':
@@ -116,6 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Membuka halaman detail cafe.
   void openCafeDetail(Cafe cafe) {
     Navigator.push(
       context,
@@ -125,6 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Membuka halaman profil.
   void openProfile() {
     Navigator.push(
       context,
@@ -134,6 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Membuka halaman wishlist.
   void openWishlist() {
     Navigator.push(
       context,
@@ -153,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header aplikasi
+              // Header aplikasi.
               Row(
                 children: [
                   Container(
@@ -242,7 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 22),
 
-              // Pencarian cafe
+              // Pencarian cafe.
               TextField(
                 controller: searchController,
                 onChanged: (value) {
@@ -278,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 14),
 
-              // Filter kategori
+              // Filter kategori menggunakan reusable widget.
               SizedBox(
                 height: 42,
                 child: ListView.separated(
@@ -291,39 +301,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     final isSelected =
                         selectedCategory == category;
 
-                    return GestureDetector(
+                    return CategoryChip(
+                      label: category,
+                      isSelected: isSelected,
                       onTap: () {
                         setState(() {
                           selectedCategory = category;
                         });
                       },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? const Color(0xFF6F4E37)
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(25),
-                          border: Border.all(
-                            color: isSelected
-                                ? const Color(0xFF6F4E37)
-                                : Colors.black12,
-                          ),
-                        ),
-                        child: Text(
-                          category,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isSelected
-                                ? Colors.white
-                                : Colors.black87,
-                          ),
-                        ),
-                      ),
                     );
                   },
                 ),
@@ -331,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 28),
 
-              // Banner Wishlist
+              // Banner Wishlist.
               Material(
                 color: const Color(0xFF6F4E37),
                 borderRadius: BorderRadius.circular(20),
@@ -400,7 +385,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 28),
 
-              // Daftar cafe
+              // Daftar cafe.
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -430,6 +415,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 12),
 
+              // Menampilkan data dari CafeProvider.
               Consumer<CafeProvider>(
                 builder: (context, provider, child) {
                   if (provider.isLoading &&
@@ -444,15 +430,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }
 
+                  // Tampilan ketika API mengalami kesalahan.
                   if (provider.errorMessage != null &&
                       provider.cafes.isEmpty) {
-                    return _buildMessage(
+                    return EmptyState(
                       icon: Icons.wifi_off_rounded,
                       title: 'Gagal memuat data cafe',
                       message:
                           'Periksa koneksi internet lalu coba lagi.',
-                      action: true,
-                      onRetry: () {
+                      actionLabel: 'Coba Lagi',
+                      onAction: () {
                         provider.loadCafes(
                           latitude: latitude,
                           longitude: longitude,
@@ -464,8 +451,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   final filteredCafes =
                       filterCafes(provider.cafes);
 
+                  // Tampilan ketika cafe tidak ditemukan.
                   if (filteredCafes.isEmpty) {
-                    return _buildMessage(
+                    return const EmptyState(
                       icon: Icons.coffee_outlined,
                       title: 'Cafe belum ditemukan',
                       message:
@@ -473,9 +461,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }
 
+                  // Menampilkan daftar cafe dengan CafeCard.
                   return Column(
                     children: filteredCafes.map((cafe) {
-                      return _buildCafeCard(cafe);
+                      return CafeCard(
+                        cafe: cafe,
+                        categoryLabel:
+                            categoryLabel(cafe.category),
+                        categoryIcon:
+                            categoryIcon(cafe.category),
+                        onTap: () => openCafeDetail(cafe),
+                      );
                     }).toList(),
                   );
                 },
@@ -485,154 +481,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  // Kartu cafe yang dapat ditekan
-  Widget _buildCafeCard(Cafe cafe) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(18),
-          onTap: () => openCafeDetail(cafe),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 58,
-                  height: 58,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEFE4D8),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Icon(
-                    categoryIcon(cafe.category),
-                    color: const Color(0xFF6F4E37),
-                    size: 30,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        cafe.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: Color(0xFF302820),
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        categoryLabel(cafe.category),
-                        style: const TextStyle(
-                          color: Color(0xFF6F4E37),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.location_on_outlined,
-                            size: 14,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              cafe.address,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: Color(0xFF6F4E37),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMessage({
-    required IconData icon,
-    required String title,
-    required String message,
-    bool action = false,
-    VoidCallback? onRetry,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            size: 42,
-            color: const Color(0xFF6F4E37),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.grey,
-              fontSize: 11,
-            ),
-          ),
-          if (action) ...[
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: const Text('Coba Lagi'),
-            ),
-          ],
-        ],
       ),
     );
   }
