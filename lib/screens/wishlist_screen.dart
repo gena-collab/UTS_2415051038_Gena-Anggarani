@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../models/wishlist.dart';
 import '../providers/wishlist_provider.dart';
+import 'wishlist_detail_screen.dart';
 import 'wishlist_form_screen.dart';
 
 class WishlistScreen extends StatefulWidget {
@@ -30,6 +31,15 @@ class _WishlistScreenState extends State<WishlistScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => WishlistFormScreen(wishlist: wishlist),
+      ),
+    );
+  }
+
+  void _openDetail(Wishlist wishlist) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => WishlistDetailScreen(wishlist: wishlist),
       ),
     );
   }
@@ -207,27 +217,44 @@ class _WishlistScreenState extends State<WishlistScreen> {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                wishlist.cafeName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                ),
+                          child: InkWell(
+                            onTap: () => _openDetail(wishlist),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 6,
                               ),
-                              const SizedBox(height: 5),
-                              Text(
-                                wishlist.address,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
-                                ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    wishlist.cafeName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    wishlist.address,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Text(
+                                    'Ketuk untuk melihat detail',
+                                    style: TextStyle(
+                                      color: Color(0xFF6F4E37),
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                         PopupMenuButton<String>(
