@@ -1,30 +1,69 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
 import 'package:cafehunt/main.dart';
+import 'package:cafehunt/models/cafe.dart';
+import 'package:cafehunt/models/wishlist.dart';
+import 'package:cafehunt/providers/cafe_provider.dart';
+import 'package:cafehunt/providers/wishlist_provider.dart';
+import 'package:cafehunt/repositories/cafe_repository.dart';
+import 'package:cafehunt/repositories/wishlist_repository.dart';
+import 'package:cafehunt/screens/home_screen.dart';
+import 'package:cafehunt/services/overpass_service.dart';
+
+class FakeCafeRepository extends CafeRepository {
+  FakeCafeRepository() : super(OverpassService());
+
+  @override
+  Future<List<Cafe>> getCafes({
+    required double latitude,
+    required double longitude,
+  }) async {
+    return [];
+  }
+}
+
+class FakeWishlistRepository implements WishlistRepository {
+  @override
+  Future<List<Wishlist>> getWishlists() async {
+    return [];
+  }
+
+  @override
+  Future<Wishlist> createWishlist(Wishlist wishlist) async {
+    return wishlist;
+  }
+
+  @override
+  Future<Wishlist> editWishlist(Wishlist wishlist) async {
+    return wishlist;
+  }
+
+  @override
+  Future<void> removeWishlist(String id) async {}
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('CafeHunt menampilkan halaman Home', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => CafeProvider(FakeCafeRepository()),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => WishlistProvider(FakeWishlistRepository()),
+          ),
+        ],
+        child: const CafeHuntApp(),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.pump();
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(Scaffold), findsWidgets);
   });
 }
