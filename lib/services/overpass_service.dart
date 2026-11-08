@@ -1,13 +1,10 @@
 
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
-
 import '../models/cafe.dart';
 
 class OverpassService {
-  // Server utama dan server cadangan.
-  static const List<String> _baseUrls = [
+  static const List<String> _servers = [
     'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
     'https://overpass.private.coffee/api/interpreter',
     'https://overpass-api.de/api/interpreter',
@@ -16,101 +13,71 @@ class OverpassService {
   Future<List<Cafe>> fetchCafes({
     required double latitude,
     required double longitude,
-    int radius = 5000,
+    int radius = 1000,
   }) async {
     final query = '''
-[out:json][timeout:25];
-(
-  node["amenity"~"cafe|coffee_shop|coworking_space"](around:$radius,$latitude,$longitude);
-  way["amenity"~"cafe|coffee_shop|coworking_space"](around:$radius,$latitude,$longitude);
-  relation["amenity"~"cafe|coffee_shop|coworking_space"](around:$radius,$latitude,$longitude);
-
-  node["shop"="bakery"](around:$radius,$latitude,$longitude);
-  way["shop"="bakery"](around:$radius,$latitude,$longitude);
-  relation["shop"="bakery"](around:$radius,$latitude,$longitude);
-);
-out center tags;
+[out:json][timeout:20];
+node(around:$radius,$latitude,$longitude)["amenity"="cafe"];
+out 10;
 ''';
 
     final errors = <String>[];
 
-    // Mencoba server satu per satu menggunakan HTTP GET.
-    for (final baseUrl in _baseUrls) {
+    for (final server in _servers) {
       try {
-        final uri = Uri.parse(baseUrl).replace(
-          queryParameters: {
-            'data': query,
-          },
+        print('CAFE API: Mencoba $server');
+
+        final uri = Uri.parse(server).replace(
+          queryParameters: {'data': query},
         );
 
-        final response = await http
-            .get(
-              uri,
-              headers: {
-                'Accept': 'application/json',
-                'User-Agent':
-                    'CafeHunt/1.0 (+https://github.com/gena-collab/cafehunt)',
-              },
-            )
-            .timeout(const Duration(seconds: 35));
+        final response = await http.get(
+          uri,
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'CafeHunt/1.0',
+          },
+        ).timeout(const Duration(seconds: 25));
 
         if (response.statusCode != 200) {
-          errors.add(
-            '${Uri.parse(baseUrl).host}: HTTP ${response.statusCode}',
-          );
+          errors.add('$server: HTTP ${response.statusCode}');
+          print('CAFE API: HTTP ${response.statusCode}');
           continue;
         }
 
         final decoded = jsonDecode(response.body);
 
-        if (decoded is! Map<String, dynamic> ||
-            decoded['elements'] is! List) {
-          errors.add(
-            '${Uri.parse(baseUrl).host}: Format data tidak valid',
-          );
+        if (decoded is! Map || decoded['elements'] is! List) {
+          errors.add('$server: Format JSON tidak valid');
           continue;
         }
 
-        final elements = decoded['elements'] as List<dynamic>;
+        final cafes = <Cafe>[];
 
-        final cafes = elements.where((element) {
-          if (element is! Map<String, dynamic>) {
-            return false;
-          }
+        for (final element in decoded['elements']) {
+          if (element is! Map) continue;
 
-          final tags =
-              element['tags'] as Map<String, dynamic>?;
+          final data = Map<String, dynamic>.from(element);
+          final tags = data['tags'];
 
-          final center =
-              element['center'] as Map<String, dynamic>?;
+          if (tags is! Map || tags['name'] == null) continue;
+          if (data['lat'] == null || data['lon'] == null) continue;
 
-          final hasLatitude =
-              element['lat'] != null ||
-              center?['lat'] != null;
+          cafes.add(Cafe.fromOverpassJson(data));
+        }
 
-          final hasLongitude =
-              element['lon'] != null ||
-              center?['lon'] != null;
-
-          return tags?['name'] != null &&
-              hasLatitude &&
-              hasLongitude;
-        }).map((element) {
-          return Cafe.fromOverpassJson(
-            Map<String, dynamic>.from(element as Map),
-          );
-        }).toList();
-
+        print('CAFE API BERHASIL: ${cafes.length} data ditemukan');
         return cafes;
       } catch (e) {
-        errors.add('${Uri.parse(baseUrl).host}: $e');
+        errors.add('$server: $e');
+        print('CAFE API GAGAL: $server | $e');
       }
+
+      await Future.delayed(const Duration(seconds: 2));
     }
 
     throw Exception(
-      'Semua server API cafe gagal dihubungi. '
-      'Periksa koneksi internet dan coba beberapa saat lagi. '
-      'Detail: ${errors.join(" | ")}',
+      'Semua server Overpass gagal. ${errors.join(' | ')}',
     );
   }
 }
